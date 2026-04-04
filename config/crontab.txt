@@ -1,0 +1,19 @@
+# GrandGridStudio — Automated Marketing Cron Schedule
+# All times in UTC (Israel is UTC+3 in summer, UTC+2 in winter)
+# Adjust offsets if needed.
+
+# Load environment variables for all jobs
+SHELL=/bin/bash
+BASH_ENV=/home/grandgrid/Nonogramproject2026/.env
+
+# Morning sweep: check messages, classify, respond/escalate (08:00 Israel = 05:00 UTC)
+0 5 * * * cd /home/grandgrid/Nonogramproject2026/automation && source /home/grandgrid/Nonogramproject2026/.env && node tasks/message-sweep.mjs >> /var/log/grandgrid/morning-sweep.log 2>&1
+
+# Content run: generate and post marketing content (12:00 Israel = 09:00 UTC)
+0 9 * * * cd /home/grandgrid/Nonogramproject2026/automation && source /home/grandgrid/Nonogramproject2026/.env && node tasks/content-post.mjs >> /var/log/grandgrid/content-run.log 2>&1
+
+# Afternoon sweep: message check + escalation reminders (18:00 Israel = 15:00 UTC)
+0 15 * * * cd /home/grandgrid/Nonogramproject2026/automation && source /home/grandgrid/Nonogramproject2026/.env && node tasks/message-sweep.mjs --check-reminders >> /var/log/grandgrid/afternoon-sweep.log 2>&1
+
+# Night summary: final sweep + daily report email (22:00 Israel = 19:00 UTC)
+0 19 * * * cd /home/grandgrid/Nonogramproject2026/automation && source /home/grandgrid/Nonogramproject2026/.env && node tasks/daily-summary.mjs >> /var/log/grandgrid/night-summary.log 2>&1

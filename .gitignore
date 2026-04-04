@@ -1,0 +1,7 @@
+.env
+*.log
+node_modules/
+.supabase/
+node_modules/
+.env
+assets/renders/
