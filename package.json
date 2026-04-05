@@ -1,0 +1,29 @@
+{
+  "name": "nonogramproject2026",
+  "version": "1.0.0",
+  "description": "AI-powered marketing and customer service system for the GrandGridStudio Etsy nonogram puzzle shop.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yanivtager/Nonogramproject2026.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/yanivtager/Nonogramproject2026/issues"
+  },
+  "homepage": "https://github.com/yanivtager/Nonogramproject2026#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
+    "pdf-parse": "^2.4.5",
+    "pdf2json": "^4.0.2",
+    "pdfjs-dist": "^5.6.205",
+    "playwright": "^1.59.1",
+    "sharp": "^0.34.5"
+  }
+}

@@ -117,6 +117,19 @@ export async function getReadyPosts() {
   return data || [];
 }
 
+export async function getNextScheduledPost() {
+  const now = new Date().toISOString();
+  const { data } = await supabase
+    .from('marketing_posts')
+    .select('*, puzzles(*)')
+    .eq('status', 'ready_to_post')
+    .lte('scheduled_at', now)
+    .order('scheduled_at', { ascending: true })
+    .limit(1)
+    .single();
+  return data || null;
+}
+
 export async function markPostPublished(postId, platformUrl) {
   await supabase.from('marketing_posts').update({
     status: 'posted',

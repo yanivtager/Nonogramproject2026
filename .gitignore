@@ -5,3 +5,8 @@ node_modules/
 node_modules/
 .env
 assets/renders/
+automation/auth/
+extracted_images/
+supabase/.temp/
+.claude/
+node_modules/
