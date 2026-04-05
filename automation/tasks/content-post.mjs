@@ -23,7 +23,7 @@ async function main() {
 
   console.log(`Posting: "${post.copy_text.substring(0, 60)}..." to ${post.platform}`);
 
-  const context = await launchBrowser();
+  const context = await launchBrowser(post.platform);
   let posted = 0;
 
   try {
