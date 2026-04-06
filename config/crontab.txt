@@ -23,6 +23,9 @@ BASH_ENV=/home/grandgrid/Nonogramproject2026/.env
 # Saturday 12:00 UTC (Asia/AU evening)
 0 12 * * 6 cd /home/grandgrid/Nonogramproject2026/automation && source /home/grandgrid/Nonogramproject2026/.env && node tasks/content-post.mjs >> /var/log/grandgrid/content-run.log 2>&1
 
+# Weekly digest email: Sunday 17:00 UTC (20:00 Israel) — sends approval email for the week's posts
+0 17 * * 0 cd /home/grandgrid/Nonogramproject2026/automation && source /home/grandgrid/Nonogramproject2026/.env && node tasks/weekly-digest.mjs >> /var/log/grandgrid/weekly-digest.log 2>&1
+
 # Afternoon sweep: message check + escalation reminders (18:00 Israel = 15:00 UTC)
 0 15 * * * cd /home/grandgrid/Nonogramproject2026/automation && source /home/grandgrid/Nonogramproject2026/.env && node tasks/message-sweep.mjs --check-reminders >> /var/log/grandgrid/afternoon-sweep.log 2>&1
 

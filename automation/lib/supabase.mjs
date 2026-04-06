@@ -122,12 +122,34 @@ export async function getNextScheduledPost() {
   const { data } = await supabase
     .from('marketing_posts')
     .select('*, puzzles(*)')
-    .eq('status', 'ready_to_post')
+    .eq('status', 'approved')
     .lte('scheduled_at', now)
     .order('scheduled_at', { ascending: true })
     .limit(1)
     .single();
   return data || null;
+}
+
+export async function getUpcomingPosts(startDate, endDate) {
+  const { data } = await supabase
+    .from('marketing_posts')
+    .select('*, puzzles(*)')
+    .eq('status', 'ready_to_post')
+    .gte('scheduled_at', startDate)
+    .lte('scheduled_at', endDate)
+    .order('scheduled_at', { ascending: true });
+  return data || [];
+}
+
+export async function approvePostsByToken(token) {
+  const { data, error } = await supabase
+    .from('marketing_posts')
+    .update({ status: 'approved' })
+    .eq('approval_token', token)
+    .eq('status', 'ready_to_post')
+    .select();
+  if (error) throw error;
+  return data || [];
 }
 
 export async function markPostPublished(postId, platformUrl) {
