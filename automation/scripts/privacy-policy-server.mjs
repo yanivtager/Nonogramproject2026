@@ -31,11 +31,11 @@ const PRIVACY_HTML = `<!DOCTYPE html>
 </body></html>`;
 
 const server = createServer((req, res) => {
-  if (req.url === '/privacy' || req.url === '/privacy/') {
+  if (req.url === '/grandgridstudio/privacy' || req.url === '/grandgridstudio/privacy/') {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(PRIVACY_HTML);
   } else {
-    res.writeHead(302, { 'Location': '/privacy' });
+    res.writeHead(302, { 'Location': '/grandgridstudio/privacy' });
     res.end();
   }
 });
