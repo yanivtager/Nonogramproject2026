@@ -41,7 +41,7 @@ echo "npm:  $(npm --version)"
 
 # ── 3. Python edge-tts and whisper ────────────────────────────────────────────
 echo "[3/7] Installing Python TTS/STT tools..."
-pip3 install --quiet edge-tts openai-whisper
+pip3 install --quiet --break-system-packages edge-tts openai-whisper
 
 # ── 4. Create service user ────────────────────────────────────────────────────
 echo "[4/7] Creating service user '${USER}'..."
