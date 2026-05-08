@@ -34,6 +34,7 @@ describe("render orchestrator — validation gates (locks #2/#3/#4)", () => {
     const outDir = mkdtempSync(join(tmpdir(), "render-test-"));
     const result = await renderVariant({
       variantId: "test-dragons-wrath-en",
+      templateId: "scale-shock",
       listing: dragonsWrath,
       voice: fakeVoice,
       track: null,
@@ -52,6 +53,7 @@ describe("render orchestrator — validation gates (locks #2/#3/#4)", () => {
     const outDir = mkdtempSync(join(tmpdir(), "render-test-"));
     const result = await renderVariant({
       variantId: "test-cafe-serenade-en",
+      templateId: "scale-shock",
       listing: cafeSerenade,
       voice: fakeVoice,
       track: null,
@@ -88,6 +90,7 @@ describe("render orchestrator — validation gates (locks #2/#3/#4)", () => {
     const corrupted = { ...dragonsWrath, cell_count: 250000 };
     const result = await renderVariant({
       variantId: "test-corrupted",
+      templateId: "scale-shock",
       listing: corrupted,
       voice: fakeVoice,
       track: null,
@@ -127,6 +130,7 @@ describe("render orchestrator — validation gates (locks #2/#3/#4)", () => {
     };
     const result = await renderVariant({
       variantId: "test-hardcoded",
+      templateId: "scale-shock",
       listing: dragonsWrath,
       voice: fakeVoice,
       track: null,
@@ -157,6 +161,7 @@ describe("render orchestrator — validation gates (locks #2/#3/#4)", () => {
     const outDir = mkdtempSync(join(tmpdir(), "render-test-"));
     const result = await renderVariant({
       variantId: "test-clean",
+      templateId: "scale-shock",
       listing: cafeSerenade,
       voice: fakeVoice,
       track: null,

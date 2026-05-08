@@ -104,6 +104,7 @@ async function tick(): Promise<void> {
   // ── Render ────────────────────────────────────────────────────────────────
   const renderResult = await renderVariant({
     variantId: variant.id,
+    templateId: variant.template_id,
     listing: variant.listings,
     voice: variant.voices,
     track: variant.tracks,

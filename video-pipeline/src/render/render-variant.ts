@@ -18,9 +18,11 @@ import { resolveScript, assertNoHardcodedNumbers, type NarrationScript } from ".
 import { assertNumericTokensValid } from "../validation/numeric-tokens.js";
 import { synthesize } from "../tts/edge-tts.js";
 import { CompositionPropsSchema, type CompositionProps } from "../compositions/types.js";
+import { TEMPLATE_TO_COMPOSITION_ID } from "../compositions/index.js";
 
 export interface RenderVariantOptions {
   variantId: string;
+  templateId: string;
   listing: Listing;
   voice: Voice;
   track: Track | null;
@@ -121,6 +123,15 @@ export async function renderVariant(opts: RenderVariantOptions): Promise<RenderV
 
   const mp4Path = join(opts.outDir, `${opts.variantId}.mp4`);
 
+  const compositionId = TEMPLATE_TO_COMPOSITION_ID[opts.templateId];
+  if (!compositionId) {
+    return {
+      variantId: opts.variantId,
+      status: "validation-failed",
+      error: `Unknown templateId: ${opts.templateId}`,
+    };
+  }
+
   // Lazy import Remotion renderer so unit tests don't pay the bundle cost.
   const { renderMedia, selectComposition } = await import("@remotion/renderer");
   const { bundle } = await import("@remotion/bundler");
@@ -131,7 +142,7 @@ export async function renderVariant(opts: RenderVariantOptions): Promise<RenderV
   });
   const composition = await selectComposition({
     serveUrl: bundleLocation,
-    id: "ScaleShock",
+    id: compositionId,
     inputProps: props as unknown as Record<string, unknown>,
   });
 

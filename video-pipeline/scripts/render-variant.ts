@@ -54,6 +54,7 @@ const voice: Voice = {
 
 const result = await renderVariant({
   variantId: `${listing.id}-scale-shock-${language}`,
+  templateId: "scale-shock",
   listing,
   voice,
   track: null,
