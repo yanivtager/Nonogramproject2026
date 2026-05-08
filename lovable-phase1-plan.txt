@@ -1,0 +1,307 @@
+GrandGridStudio Review UI — Phase 1
+
+Operational, dense, keyboard-driven review queue. All product facts come from the API; the shared contract is the only source of types.
+
+Scope (Phase 1 only)
+
+
+
+
+
+Password gate
+
+
+
+Queue of preview-ready variants
+
+
+
+916 player from latest completed render mp4_url
+
+
+
+Inspector tabs transcript  on-screen copy  validation
+
+
+
+Approve  Needs Fix  Reject (Needs Fix + Reject require feedback)
+
+
+
+Keyboard shortcuts A, N, R, J, K
+
+
+
+Loading  empty  error  submitting  success  failure states
+
+Out of scope render & exported endpoints surface no UI (typed client methods exist but unused), listings, templates, voices, music are wired in the client but not consumed yet.
+
+Files to create
+
+shared
+  types.ts                          # exact contents you pasted, read-only
+
+src
+  lib
+    api-client.ts                   # fetch wrapper + endpoint methods
+    auth-gate.ts                    # sessionStorage password helpers
+    keyboard.ts                     # useHotkeys hook (ANRJK)
+  components
+    PasswordGate.tsx                # form, validates against env password
+    review
+      QueueList.tsx                 # left column, listingtemplatelang badges
+      VariantPlayer.tsx             # 916 video, stable aspect-ratio
+      InspectorTabs.tsx             # tabs transcript  on-screen  validation
+      JsonView.tsx                  # readable JSON renderer
+      DecisionBar.tsx               # Approve  Needs Fix  Reject + textarea
+      StatusBadge.tsx               # VariantStatus pill
+  routes
+    __root.tsx                      # add QueryClientProvider + Toaster (already has QC)
+    index.tsx                       # replaces placeholder; renders gate or ReviewQueue
+    review.tsx                      # the 3-pane layout (or render inline in index)
+
+Keep sharedtypes.ts outside src and import via a path alias @shared added in tsconfig.json + vite.config.ts. Components import Listing, Variant, etc. only from @sharedtypes.
+
+Environment variables
+
+Read from import.meta.env
+
+
+
+
+
+VITE_SUPABASE_URL (unused in Phase 1, kept for parity)
+
+
+
+VITE_SUPABASE_ANON_KEY (unused in Phase 1)
+
+
+
+VITE_VIDEO_FACTORY_API_BASE_URL
+
+
+
+VITE_VIDEO_FACTORY_REVIEW_TOKEN
+
+
+
+VITE_REVIEW_UI_PASSWORD
+
+If VITE_VIDEO_FACTORY_API_BASE_URL or VITE_VIDEO_FACTORY_REVIEW_TOKEN is missing, the app shows a full-page error (no fallback, no mock data).
+
+API client (srclibapi-client.ts)
+
+Thin typed wrapper
+
+
+
+
+
+getVariants(status='preview-ready') PromiseVariant[]
+
+
+
+postDecision(id, { decision, reason }) PromiseDecision
+
+
+
+requestRender(id), markExported(id) — defined but not wired to UI
+
+
+
+getListingsgetTemplatesgetVoicesgetMusic — defined for completeness
+
+GETs send no token. POSTs send Content-Type applicationjson + x-review-token. On non-2xx, throws Error(message) with the response body text so the UI can surface the exact message.
+
+Auth gate
+
+
+
+
+
+On submit, compare entered value to VITE_REVIEW_UI_PASSWORD.
+
+
+
+On match, set sessionStorage[review-ui-auth]=1 and render the queue.
+
+
+
+A small Lock button in the header clears it. This is a UX gate, not security.
+
+Layout ()
+
+┌────────────────────────────────────────────────────────────────────┐
+│ Header GrandGridStudio Review · queue count · Lock button         │
+├──────────────┬─────────────────────────┬───────────────────────────┤
+│ Queue        │  916 Player            │ Inspector                 │
+│ (variants)   │  (sticky, max-h)        │ [TranscriptCopyValid.]  │
+│              │  hook_text below video  │ JSON viewer               │
+│              │                         │ ─────────────────────     │
+│              │                         │ DecisionBar               │
+└──────────────┴─────────────────────────┴───────────────────────────┘
+
+
+
+
+
+Desktop ≥1024px 3-column grid 260px 1fr 380px.
+
+
+
+1024px stacks; queue collapses to a horizontal scroller above the player; inspector tabs sit below.
+
+
+
+Player wrapper enforces aspect-ratio 916 with max-height calc(100dvh - header+padding) so it never overlaps siblings.
+
+
+
+All colors via semantic tokens already in srcstyles.css. Tighten contrast for an operational SaaS feel; no hero, no gradient, compact spacing (text-sm, dense badges).
+
+Data flow
+
+
+
+
+
+useQuery(['variants','preview-ready'], () = api.getVariants('preview-ready')) with staleTime 15s.
+
+
+
+Selected variant stored in URL search param v=id via Route.useSearch() + useNavigate (so refresh keeps state). Default selection first item.
+
+
+
+useMutation for decisions; on success queryClient.invalidateQueries(['variants','preview-ready']) and toast.
+
+
+
+Never show approved unless backend confirms optimistic UI is disabled; the row reflects only what the refetched list returns.
+
+Inspector
+
+
+
+
+
+Tabs Transcript (narration_script_json), On-screen (on_screen_copy_json), Validation (validation_json).
+
+
+
+JsonView renders pretty-printed JSON in a pre with monospace + scroll; for arrays of {t, text} style transcripts it falls back to a table-ish list. No assumptions about exact shape — unknown from the contract is honored.
+
+Decision bar
+
+
+
+
+
+Three buttons with lucide icons Check, AlertTriangle, X.
+
+
+
+Approve submits immediately.
+
+
+
+Needs Fix  Reject reveals a Textarea; submit disabled until non-empty trimmed text. Zod validates reason length 1–2000.
+
+
+
+States idle → submitting (button spinner, all disabled) → success (toast, refetch) → failure (toast with exact API error message; form stays).
+
+Keyboard shortcuts (srclibkeyboard.ts)
+
+Global listener; ignored when focus is in an inputtextarea unless explicitly allowed
+
+
+
+
+
+J next variant, K previous (wrap)
+
+
+
+A approve current
+
+
+
+R reject current (focuses reason textarea, requires confirm via Enter)
+
+
+
+N focus Needs Fix textarea
+
+States checklist
+
+
+
+
+
+Initial skeleton queue + skeleton player
+
+
+
+Empty Queue is clear panel
+
+
+
+Error full-pane error card with exact message + Retry
+
+
+
+Mutation pending button spinner, inputs disabled
+
+
+
+Mutation success toast + queue refetch
+
+
+
+Mutation failure toast with API message; selection preserved
+
+Acceptance verification (run before declaring done)
+
+
+
+
+
+tsc --noEmit clean (handled by harness build).
+
+
+
+rg interface (ListingVariantTemplateVoiceTrackRenderDecision) src → no matches.
+
+
+
+rg -n etsycell_countgrid_sizescale-shock src → no hardcoded product facts.
+
+
+
+Manual queue loads, JK navigates, A approves, N opens textarea, video stays 916 at 375px width with no overlap.
+
+Technical notes
+
+
+
+
+
+Stay on the existing TanStack Start template; do not add Lovable Cloud or auth.
+
+
+
+Add @shared alias in tsconfig.json (paths) and vite.config.ts (resolve.alias).
+
+
+
+Use existing shadcn primitives button, tabs, textarea, badge, card, scroll-area, sonner toaster.
+
+
+
+QueryClientProvider already lives in __root.tsx; reuse it.
+
+
+
+No new npm packages required.

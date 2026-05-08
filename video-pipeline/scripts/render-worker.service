@@ -1,0 +1,22 @@
+[Unit]
+Description=GrandGridStudio video render worker
+Documentation=https://github.com/yanivtager/Nonogramproject2026
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=grandgrid
+WorkingDirectory=/home/grandgrid/Nonogramproject2026/video-pipeline
+EnvironmentFile=/home/grandgrid/Nonogramproject2026/video-pipeline/.env
+Environment=RENDER_WORKER_HOST=hetzner-cpx22
+Environment=RENDER_OUT_DIR=/home/grandgrid/shorts-output/worker-renders
+ExecStart=/usr/bin/npm run worker:render
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=grandgrid-render-worker
+
+[Install]
+WantedBy=multi-user.target
