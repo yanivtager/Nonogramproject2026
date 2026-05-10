@@ -81,25 +81,36 @@ export function assertNoHardcodedNumbers(script: NarrationScript): void {
  * Resolves a script's text_templates by substituting variables from the listing record.
  * Returns the spoken text per segment.
  */
+const LOCALE_MAP: Record<string, string> = {
+  en: "en-US",
+  es: "es-MX",
+  ja: "ja-JP",
+  "pt-BR": "pt-BR",
+};
+
 export function resolveScript(
   script: NarrationScript,
   listing: Listing,
+  languageCode?: string,
 ): { segment: NarrationSegment; resolved_text: string }[] {
+  const lang = languageCode ?? script.language_code;
   return script.segments.map((segment) => {
     const resolved_text = segment.text_template.replace(
       /\{\{(listing\.[a-z_]+)\}\}/g,
-      (_match, variable: string) => resolveVariable(variable, listing),
+      (_match, variable: string) => resolveVariable(variable, listing, lang),
     );
     return { segment, resolved_text };
   });
 }
 
-function resolveVariable(variable: string, listing: Listing): string {
+function resolveVariable(variable: string, listing: Listing, languageCode: string): string {
   switch (variable) {
     case "listing.cell_count":
       return String(listing.cell_count);
-    case "listing.cell_count_formatted":
-      return listing.cell_count.toLocaleString("en-US");
+    case "listing.cell_count_formatted": {
+      const locale = LOCALE_MAP[languageCode] ?? "en-US";
+      return listing.cell_count.toLocaleString(locale);
+    }
     case "listing.grid_size":
       return listing.grid_size;
     case "listing.puzzle_count":

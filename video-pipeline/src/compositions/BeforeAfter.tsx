@@ -22,8 +22,10 @@ export const BeforeAfterComposition: React.FC<CompositionProps> = ({
   narrationSegments,
   narrationAudioPath,
   musicPath,
+  musicDuckingDb,
 }) => {
   const { fps } = useVideoConfig();
+  const musicLinearVol = Math.pow(10, (musicDuckingDb ?? -10) / 20);
   const frame = useCurrentFrame();
 
   // Background morphs from cold (empty) to warm (solved) over 13s
@@ -58,7 +60,17 @@ export const BeforeAfterComposition: React.FC<CompositionProps> = ({
       </Sequence>
 
       <Audio src={toRemotionAsset(narrationAudioPath)} />
-      {musicPath !== null && <Audio src={toRemotionAsset(musicPath)} volume={0.25} />}
+      {musicPath !== null && (
+        <Audio
+          src={toRemotionAsset(musicPath)}
+          volume={(frame) =>
+            Math.min(
+              interpolate(frame, [0, 8], [0, musicLinearVol], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+              interpolate(frame, [13 * fps, 15 * fps], [musicLinearVol, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            )
+          }
+        />
+      )}
     </AbsoluteFill>
   );
 };
@@ -68,6 +80,15 @@ function toRemotionAsset(pathOrUrl: string): string {
   return staticFile(pathOrUrl.replace(/\\/g, "/"));
 }
 
+function parseGridSize(s: string): { across: number; down: number } {
+  const match = s.match(/(\d+)\s*[xX×]\s*(\d+)/);
+  if (!match) return { across: 20, down: 20 };
+  return {
+    across: Math.min(parseInt(match[1]!, 10), 30),
+    down: Math.min(parseInt(match[2]!, 10), 30),
+  };
+}
+
 const TransformGraphic: React.FC<{ cellCount: number; gridSize: string }> = ({ gridSize }) => {
   const frame = useCurrentFrame();
   // Fill fraction 0→1 over frames 2s to 11s
@@ -75,8 +96,7 @@ const TransformGraphic: React.FC<{ cellCount: number; gridSize: string }> = ({ g
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const cellsAcross = 20;
-  const cellsDown = 20;
+  const { across: cellsAcross, down: cellsDown } = parseGridSize(gridSize);
   const totalCells = cellsAcross * cellsDown;
   const filledCount = Math.round(fillFraction * totalCells);
 

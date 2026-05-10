@@ -23,8 +23,10 @@ export const PrintRitualComposition: React.FC<CompositionProps> = ({
   narrationSegments,
   narrationAudioPath,
   musicPath,
+  musicDuckingDb,
 }) => {
   const { fps } = useVideoConfig();
+  const musicLinearVol = Math.pow(10, (musicDuckingDb ?? -10) / 20);
   const frame = useCurrentFrame();
 
   const breathe = 0.92 + 0.04 * Math.sin((frame / FPS) * 0.35);
@@ -67,7 +69,17 @@ export const PrintRitualComposition: React.FC<CompositionProps> = ({
       </Sequence>
 
       <Audio src={toRemotionAsset(narrationAudioPath)} />
-      {musicPath !== null && <Audio src={toRemotionAsset(musicPath)} volume={0.2} />}
+      {musicPath !== null && (
+        <Audio
+          src={toRemotionAsset(musicPath)}
+          volume={(frame) =>
+            Math.min(
+              interpolate(frame, [0, 8], [0, musicLinearVol], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+              interpolate(frame, [13 * fps, 15 * fps], [musicLinearVol, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            )
+          }
+        />
+      )}
     </AbsoluteFill>
   );
 };

@@ -10,8 +10,11 @@
  *  - Lock #4 (visual assertion): CompositionPropsSchema validates props before render.
  */
 
-import { copyFileSync, existsSync, mkdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, renameSync } from "node:fs";
 import { basename, join } from "node:path";
+import { promisify } from "node:util";
+import { execFile } from "node:child_process";
+import ffmpegPath from "ffmpeg-static";
 
 import type { Listing, Track, Voice } from "../data/types.js";
 import { resolveScript, assertNoHardcodedNumbers, type NarrationScript } from "../narration/schema.js";
@@ -19,6 +22,7 @@ import { assertNumericTokensValid } from "../validation/numeric-tokens.js";
 import { synthesize } from "../tts/edge-tts.js";
 import { CompositionPropsSchema, type CompositionProps } from "../compositions/types.js";
 import { TEMPLATE_TO_COMPOSITION_ID } from "../compositions/index.js";
+import { explainAudioAssetProblem } from "../music/audio-assets.js";
 
 export interface RenderVariantOptions {
   variantId: string;
@@ -44,6 +48,24 @@ export interface RenderVariantResult {
 }
 
 export async function renderVariant(opts: RenderVariantOptions): Promise<RenderVariantResult> {
+  if (!opts.dryRun) {
+    if (opts.track && opts.track.approval_status !== "approved") {
+      return {
+        variantId: opts.variantId,
+        status: "validation-failed",
+        error: `Track "${opts.track.title}" is not approved (status: ${opts.track.approval_status}). Approve it in the Music tab first.`,
+      };
+    }
+    const musicProblem = explainAudioAssetProblem(opts.track?.file_url);
+    if (musicProblem) {
+      return {
+        variantId: opts.variantId,
+        status: "validation-failed",
+        error: `Invalid music track: ${musicProblem}`,
+      };
+    }
+  }
+
   // Lock #2: hardcoded-number rejection at script load.
   try {
     assertNoHardcodedNumbers(opts.script);
@@ -56,7 +78,7 @@ export async function renderVariant(opts: RenderVariantOptions): Promise<RenderV
   }
 
   // Resolve {{listing.*}} variables into concrete spoken text.
-  const resolved = resolveScript(opts.script, opts.listing);
+  const resolved = resolveScript(opts.script, opts.listing, opts.script.language_code);
 
   // Lock #3: every numeric token in the resolved text must trace to a listing fact.
   try {
@@ -102,7 +124,7 @@ export async function renderVariant(opts: RenderVariantOptions): Promise<RenderV
     narrationAudioPath: publicAudioName,
     captionsVttPath: captionsPath,
     musicPath,
-    musicDuckingDb: -8,
+    musicDuckingDb: opts.track?.recommended_gain_db ?? -3.0,
     voice: opts.voice,
     track: opts.track,
   };
@@ -122,6 +144,10 @@ export async function renderVariant(opts: RenderVariantOptions): Promise<RenderV
   }
 
   const mp4Path = join(opts.outDir, `${opts.variantId}.mp4`);
+  const outputVttPath = join(opts.outDir, `${opts.variantId}.vtt`);
+  if (existsSync(captionsPath)) {
+    copyFileSync(captionsPath, outputVttPath);
+  }
 
   const compositionId = TEMPLATE_TO_COMPOSITION_ID[opts.templateId];
   if (!compositionId) {
@@ -150,6 +176,7 @@ export async function renderVariant(opts: RenderVariantOptions): Promise<RenderV
     composition,
     serveUrl: bundleLocation,
     codec: "h264",
+    videoBitrate: "3M",
     outputLocation: mp4Path,
     inputProps: props as unknown as Record<string, unknown>,
   });
@@ -162,12 +189,22 @@ export async function renderVariant(opts: RenderVariantOptions): Promise<RenderV
     };
   }
 
+  // Re-mux with moov atom at the front so browsers can stream without downloading the whole file.
+  const tmpPath = mp4Path.replace(/\.mp4$/, "_tmp.mp4");
+  await promisify(execFile)(ffmpegPath as string, [
+    "-y", "-i", mp4Path,
+    "-c", "copy",
+    "-movflags", "+faststart",
+    tmpPath,
+  ]);
+  renameSync(tmpPath, mp4Path);
+
   return {
     variantId: opts.variantId,
     status: "ok",
     mp4Path,
     audioPath: tts.audioPath,
-    captionsPath,
+    captionsPath: existsSync(outputVttPath) ? outputVttPath : captionsPath,
     durationSeconds: tts.durationSeconds,
     composedProps: props,
   };

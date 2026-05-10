@@ -40,7 +40,7 @@ export async function runSelfReview(opts: SelfReviewOptions): Promise<SelfReview
   if (!l1Pass) failedLayers.push("integrity");
 
   // ── Layer 2: Audio fidelity ─────────────────────────────────────────────────
-  const expectedNarration = resolveScript(opts.script, opts.listing)
+  const expectedNarration = resolveScript(opts.script, opts.listing, opts.script.language_code)
     .map((r) => r.resolved_text)
     .join(" ");
 

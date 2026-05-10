@@ -20,8 +20,10 @@ export const SolveRevealComposition: React.FC<CompositionProps> = ({
   narrationSegments,
   narrationAudioPath,
   musicPath,
+  musicDuckingDb,
 }) => {
   const { fps } = useVideoConfig();
+  const musicLinearVol = Math.pow(10, (musicDuckingDb ?? -10) / 20);
 
   return (
     <AbsoluteFill
@@ -53,7 +55,17 @@ export const SolveRevealComposition: React.FC<CompositionProps> = ({
       </Sequence>
 
       <Audio src={toRemotionAsset(narrationAudioPath)} />
-      {musicPath !== null && <Audio src={toRemotionAsset(musicPath)} volume={0.25} />}
+      {musicPath !== null && (
+        <Audio
+          src={toRemotionAsset(musicPath)}
+          volume={(frame) =>
+            Math.min(
+              interpolate(frame, [0, 8], [0, musicLinearVol], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+              interpolate(frame, [13 * fps, 15 * fps], [musicLinearVol, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            )
+          }
+        />
+      )}
     </AbsoluteFill>
   );
 };

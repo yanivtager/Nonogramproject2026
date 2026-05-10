@@ -13,15 +13,19 @@ import { SolveRevealComposition } from "./SolveReveal";
 import { BeforeAfterComposition } from "./BeforeAfter";
 import { PrintRitualComposition } from "./PrintRitual";
 import { dragonsWrath } from "../../__fixtures__/listings";
+import { resolveScript } from "../narration/schema";
+import { scaleShockEn } from "../narration/scripts/scale-shock";
+
+const DEFAULT_NARRATION_SEGMENTS = resolveScript(scaleShockEn, dragonsWrath, "en").map(({ segment, resolved_text }) => ({
+  kind: segment.kind,
+  start_s: segment.start_s,
+  end_s: segment.end_s,
+  resolved_text,
+}));
 
 const DEFAULT_PROPS = {
   listing: dragonsWrath,
-  narrationSegments: [
-    { kind: "hook", start_s: 0, end_s: 2, resolved_text: "This printable nonogram has 15,000 cells." },
-    { kind: "scale_pan", start_s: 2, end_s: 8, resolved_text: "100x150. Every cell solved by hand." },
-    { kind: "reveal_motion", start_s: 8, end_s: 13, resolved_text: "No guessing. Pure logic." },
-    { kind: "cta", start_s: 13, end_s: 15, resolved_text: "Find Dragon's Wrath on Etsy at Grand Grid Studio." },
-  ],
+  narrationSegments: DEFAULT_NARRATION_SEGMENTS,
   narrationAudioPath: "",
   captionsVttPath: "",
   musicPath: null,
