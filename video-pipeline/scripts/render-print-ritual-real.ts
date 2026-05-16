@@ -36,6 +36,10 @@ import {
 import type { LanguageCode, Listing, Track, Voice } from "../src/data/types.js";
 import { printRitualScripts } from "../src/narration/scripts/print-ritual.js";
 import { renderVariant } from "../src/render/render-variant.js";
+import {
+  buildCompositionArtworkSelectionForRecipe,
+  loadArtworkV1Manifest,
+} from "../src/marketing/composition-artwork-selection.js";
 
 const LISTINGS: Record<string, Listing> = {
   "cafe-serenade": cafeSerenade,
@@ -133,6 +137,19 @@ const track: Track | null = musicPath
     }
   : null;
 
+const artworkManifest = loadArtworkV1Manifest();
+const artworkSelection = buildCompositionArtworkSelectionForRecipe(
+  {
+    listing_id: listing.id,
+    template_id: "print-ritual-real",
+    language_code: language,
+    voice_id: voice.vendor_voice_id,
+    track_title: track?.title ?? "No Music",
+    track_mood: track?.mood ?? null,
+  },
+  artworkManifest,
+);
+
 const result = await renderVariant({
   variantId: `${listing.id}-print-ritual-real-${language}`,
   templateId: "print-ritual-real",
@@ -142,6 +159,7 @@ const result = await renderVariant({
   script,
   outDir,
   backgroundVideoPath,
+  artworkSelection,
   musicApprovalStatus: track ? "approved" : null,
   musicGainDb: track?.recommended_gain_db ?? null,
   dryRun,
