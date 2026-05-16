@@ -31,8 +31,8 @@ export const dragonsWrath: Listing = {
   puzzle_count: 1,
   difficulty: "Expert",
   cover_image_url: null,
-  solved_artwork_url: null,
-  recommended_templates: ["solve-reveal", "before-after"],
+  solved_artwork_url: "https://jmzkexgwcvodquczjqfk.supabase.co/storage/v1/object/public/video-assets/video-pipeline/solved-artwork/single_dragons_wrath_sol-3.png",
+  recommended_templates: ["solve-reveal", "before-after", "print-ritual-real"],
 };
 
 export const frozenGaze: Listing = {
@@ -63,4 +63,49 @@ export const ultimateBundle: Listing = {
   cover_image_url: null,
   solved_artwork_url: null,
   recommended_templates: ["scale-shock", "before-after"],
+};
+
+export const titanicSeries: Listing = {
+  id: "titanic-series",
+  name: "Titanic Series",
+  etsy_url: "https://www.etsy.com/listing/4453773767/",
+  etsy_listing_id: "4453773767",
+  theme: "15 fantasy nonograms with dragons, magic, libraries, and hidden pixel art.",
+  grid_size: "100x150",
+  cell_count: 15000,
+  puzzle_count: 15,
+  difficulty: "Expert",
+  cover_image_url: null,
+  solved_artwork_url: null,
+  recommended_templates: ["solve-reveal", "before-after"],
+};
+
+export const colossusSeries: Listing = {
+  id: "colossus-series",
+  name: "Colossus Series",
+  etsy_url: "https://www.etsy.com/listing/4454075252/",
+  etsy_listing_id: "4454075252",
+  theme: "15 wildlife nonograms built for long, focused solving sessions.",
+  grid_size: "200x200",
+  cell_count: 40000,
+  puzzle_count: 15,
+  difficulty: "Expert",
+  cover_image_url: null,
+  solved_artwork_url: null,
+  recommended_templates: ["scale-shock", "solve-reveal"],
+};
+
+export const behemothSeries: Listing = {
+  id: "behemoth-series",
+  name: "Behemoth Series",
+  etsy_url: "https://www.etsy.com/listing/4454100576/",
+  etsy_listing_id: "4454100576",
+  theme: "15 grandmaster 250x250 nonograms with people, places, and scene reveals.",
+  grid_size: "250x250",
+  cell_count: 62500,
+  puzzle_count: 15,
+  difficulty: "Master",
+  cover_image_url: null,
+  solved_artwork_url: null,
+  recommended_templates: ["scale-shock"],
 };
