@@ -30,8 +30,11 @@ import { BrandCorner, CaptionBar, CtaStrip, HeadlinePill } from "./shared/BrandO
 import type { CompositionProps } from "./types";
 
 const DEFAULT_LOOP_DURATION_FRAMES = 15 * 30;
-const KLING_DURATION_FRAMES = 480; // 16 s × 30 fps — crossfade trigger point
+const KLING_DURATION_FRAMES = 480; // 16 s × 30 fps — Kling video length
 const CROSSFADE_FRAMES = Math.round(0.7 * 30); // ~21 frames
+// Crossfade starts this many frames BEFORE the video ends so the artwork is
+// fully opaque at the moment the Video component is unmounted.
+const CROSSFADE_START = KLING_DURATION_FRAMES - CROSSFADE_FRAMES;
 
 export const PrintRitualRealComposition: React.FC<CompositionProps> = ({
   listing,
@@ -58,16 +61,18 @@ export const PrintRitualRealComposition: React.FC<CompositionProps> = ({
     >
       {backgroundVideoPath ? (
         listing.solved_artwork_url ? (
-          <Video
-            src={toRemotionAsset(backgroundVideoPath)}
-            muted
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              objectPosition: "center center",
-            }}
-          />
+          <Sequence durationInFrames={KLING_DURATION_FRAMES}>
+            <Video
+              src={toRemotionAsset(backgroundVideoPath)}
+              muted
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center center",
+              }}
+            />
+          </Sequence>
         ) : (
           <Loop durationInFrames={DEFAULT_LOOP_DURATION_FRAMES}>
             <Video
@@ -145,14 +150,14 @@ const ArtworkTail: React.FC<{ artworkUrl: string }> = ({ artworkUrl }) => {
 
   const opacity = interpolate(
     frame,
-    [KLING_DURATION_FRAMES, KLING_DURATION_FRAMES + CROSSFADE_FRAMES],
+    [CROSSFADE_START, KLING_DURATION_FRAMES],
     [0, 1],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
 
   const scale = interpolate(
     frame,
-    [KLING_DURATION_FRAMES, durationInFrames],
+    [CROSSFADE_START, durationInFrames],
     [1.0, 1.06],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
