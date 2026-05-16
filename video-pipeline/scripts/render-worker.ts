@@ -21,6 +21,12 @@ import { ALL_SCRIPTS } from "../src/narration/scripts/index.js";
 import { renderVariant } from "../src/render/render-variant.js";
 import { runSelfReview } from "../src/self-review/pipeline.js";
 import type { PreferenceProfile } from "../src/self-review/layer5-subjective.js";
+import type { RenderPurpose, TemplateMusicStatus } from "../src/marketing/approval-semantics.js";
+import {
+  buildCompositionArtworkSelectionForRecipe,
+  loadArtworkV1Manifest,
+} from "../src/marketing/composition-artwork-selection.js";
+import type { TemplateId } from "../src/marketing/artwork-selection.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -36,13 +42,14 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 mkdirSync(outDir, { recursive: true });
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const artworkManifest = loadArtworkV1Manifest();
 
 async function tick(): Promise<void> {
   // Claim the oldest queued render atomically via status update
   const { data: renderRows, error: fetchErr } = await supabase
     .from("renders")
     .select(
-      "id, variant_id, variants!inner(id, template_id, language_code, voice_id, track_id, narration_script_json, listings!inner(*), voices!inner(*), tracks(*), status)",
+      "id, variant_id, variants!inner(id, template_id, language_code, voice_id, track_id, narration_script_json, extras, listings!inner(*), voices!inner(*), tracks(*), status)",
     )
     .eq("status", "queued")
     .order("created_at", { ascending: true })
@@ -66,6 +73,7 @@ async function tick(): Promise<void> {
     listings: Listing;
     voices: Voice;
     tracks: Track | null;
+    extras?: Record<string, unknown> | null;
   };
 
   console.log(
@@ -85,6 +93,7 @@ async function tick(): Promise<void> {
   }
   await supabase.from("variants").update({ status: "rendering" }).eq("id", variant.id);
 
+  try {
   // Resolve narration script
   const templateScripts = ALL_SCRIPTS[variant.template_id as keyof typeof ALL_SCRIPTS];
   if (!templateScripts) {
@@ -101,15 +110,33 @@ async function tick(): Promise<void> {
     return;
   }
 
+  const renderPurpose = getRenderPurpose(variant.extras);
+  const renderTrack = renderPurpose === "template-behavior-proof" ? null : variant.tracks;
+  const templateMusicApproval = await fetchTemplateMusicApproval(
+    variant.template_id,
+    renderTrack?.id,
+  );
+
   // ── Render ────────────────────────────────────────────────────────────────
   const renderResult = await renderVariant({
     variantId: variant.id,
     templateId: variant.template_id,
     listing: variant.listings,
     voice: variant.voices,
-    track: variant.tracks,
+    track: renderTrack,
     script,
     outDir,
+    musicApprovalStatus: templateMusicApproval?.status ?? null,
+    musicGainDb: templateMusicApproval?.approved_gain_db ?? null,
+    renderPurpose,
+    artworkSelection: safeBuildArtworkSelection({
+      listing_id: variant.listings.id,
+      template_id: variant.template_id as TemplateId,
+      language_code: variant.language_code,
+      voice_id: variant.voices.vendor_voice_id,
+      track_title: renderTrack?.title ?? "No Music",
+      track_mood: renderTrack?.mood ?? null,
+    }),
   });
 
   if (renderResult.status !== "ok" || !renderResult.mp4Path) {
@@ -118,7 +145,7 @@ async function tick(): Promise<void> {
   }
 
   // ── Upload to Supabase Storage ────────────────────────────────────────────
-  const mp4Key = `${variant.id}/${basename(renderResult.mp4Path)}`;
+  const mp4Key = `${variant.id}/${Date.now()}-${basename(renderResult.mp4Path)}`;
   let publicMp4Url: string | null = null;
 
   try {
@@ -171,12 +198,15 @@ async function tick(): Promise<void> {
     variantId: variant.id,
     mp4Path: renderResult.mp4Path,
     listing: variant.listings,
-    script,
+    script: renderResult.effectiveScript ?? script,
     voiceId: variant.voices.vendor_voice_id,
     captionsVttPath: renderResult.captionsPath ?? null,
-    musicPath: variant.tracks?.file_url ?? null,
+    musicPath: renderTrack?.file_url ?? null,
     previousVoiceIdsForListing: previousVoiceIds,
     preferenceProfile,
+    targetDurationSeconds: renderResult.durationSeconds,
+    musicOptional: renderPurpose === "template-behavior-proof",
+    voiceVarietyOptional: renderPurpose === "template-behavior-proof",
   });
 
   // ── Update DB with results ────────────────────────────────────────────────
@@ -221,6 +251,19 @@ async function tick(): Promise<void> {
       console.warn(`  Auto-fix hint: ${selfReviewReport.autoFixHint}`);
     }
   }
+  } catch (error) {
+    const message = error instanceof Error ? error.stack ?? error.message : String(error);
+    await fail(renderRow.id, variant.id, message.slice(0, 4000));
+  }
+}
+
+function safeBuildArtworkSelection(ctx: Parameters<typeof buildCompositionArtworkSelectionForRecipe>[0]) {
+  try {
+    return buildCompositionArtworkSelectionForRecipe(ctx, artworkManifest);
+  } catch (e) {
+    console.warn(`  [artwork-skip] ${ctx.listing_id}/${ctx.template_id}: ${(e as Error).message}`);
+    return undefined;
+  }
 }
 
 async function fail(renderId: string, variantId: string, message: string): Promise<void> {
@@ -230,6 +273,29 @@ async function fail(renderId: string, variantId: string, message: string): Promi
     .update({ status: "failed", build_log: message, completed_at: new Date().toISOString() })
     .eq("id", renderId);
   await supabase.from("variants").update({ status: "self-review-failed" }).eq("id", variantId);
+}
+
+async function fetchTemplateMusicApproval(
+  templateId: string,
+  trackId: string | null | undefined,
+): Promise<{ status: TemplateMusicStatus; approved_gain_db: number | null } | null> {
+  if (!trackId) return null;
+  const { data, error } = await supabase
+    .from("template_music_approvals")
+    .select("status, approved_gain_db")
+    .eq("template_id", templateId)
+    .eq("track_id", trackId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Template music approval lookup failed: ${error.message}`);
+  }
+  return data as { status: TemplateMusicStatus; approved_gain_db: number | null } | null;
+}
+
+function getRenderPurpose(extras: Record<string, unknown> | null | undefined): RenderPurpose {
+  if (extras?.render_purpose === "template-behavior-proof") return "template-behavior-proof";
+  return extras?.render_purpose === "approval-preview" ? "approval-preview" : "production";
 }
 
 /** Summarizes approved feedback_patterns into a preference profile string. */
