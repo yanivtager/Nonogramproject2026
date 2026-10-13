@@ -1,0 +1,730 @@
+{
+ "version": 1,
+ "rows": 5,
+ "cols": 5,
+ "rowClues": [
+  [
+   2
+  ],
+  [
+   4
+  ],
+  [
+   5
+  ],
+  [
+   3
+  ],
+  [
+   1
+  ]
+ ],
+ "colClues": [
+  [
+   2
+  ],
+  [
+   4
+  ],
+  [
+   5
+  ],
+  [
+   3
+  ],
+  [
+   1
+  ]
+ ],
+ "initial": [
+  [
+   -1,
+   -1,
+   -1,
+   -1,
+   -1
+  ],
+  [
+   -1,
+   -1,
+   -1,
+   -1,
+   -1
+  ],
+  [
+   -1,
+   -1,
+   -1,
+   -1,
+   -1
+  ],
+  [
+   -1,
+   -1,
+   -1,
+   -1,
+   -1
+  ],
+  [
+   -1,
+   -1,
+   -1,
+   -1,
+   -1
+  ]
+ ],
+ "final": [
+  [
+   0,
+   1,
+   1,
+   0,
+   0
+  ],
+  [
+   1,
+   1,
+   1,
+   1,
+   0
+  ],
+  [
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  [
+   0,
+   1,
+   1,
+   1,
+   0
+  ],
+  [
+   0,
+   0,
+   1,
+   0,
+   0
+  ]
+ ],
+ "status": "SOLVED",
+ "steps": [
+  {
+   "index": 0,
+   "axis": "row",
+   "line": 1,
+   "clues": [
+    4
+   ],
+   "before": [
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "after": [
+    -1,
+    1,
+    1,
+    1,
+    -1
+   ],
+   "changes": [
+    {
+     "index": 1,
+     "row": 1,
+     "col": 1,
+     "from": -1,
+     "to": 1
+    },
+    {
+     "index": 2,
+     "row": 1,
+     "col": 2,
+     "from": -1,
+     "to": 1
+    },
+    {
+     "index": 3,
+     "row": 1,
+     "col": 3,
+     "from": -1,
+     "to": 1
+    }
+   ],
+   "reason": {
+    "code": "overlap",
+    "text": "Clues [4] in 5 cells leave slack 1; the cells shared by every placement are forced."
+   },
+   "pinnedClues": [],
+   "lineComplete": false
+  },
+  {
+   "index": 1,
+   "axis": "row",
+   "line": 2,
+   "clues": [
+    5
+   ],
+   "before": [
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "after": [
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "changes": [
+    {
+     "index": 0,
+     "row": 2,
+     "col": 0,
+     "from": -1,
+     "to": 1
+    },
+    {
+     "index": 1,
+     "row": 2,
+     "col": 1,
+     "from": -1,
+     "to": 1
+    },
+    {
+     "index": 2,
+     "row": 2,
+     "col": 2,
+     "from": -1,
+     "to": 1
+    },
+    {
+     "index": 3,
+     "row": 2,
+     "col": 3,
+     "from": -1,
+     "to": 1
+    },
+    {
+     "index": 4,
+     "row": 2,
+     "col": 4,
+     "from": -1,
+     "to": 1
+    }
+   ],
+   "reason": {
+    "code": "overlap",
+    "text": "Clues [5] in 5 cells leave slack 0; the cells shared by every placement are forced."
+   },
+   "pinnedClues": [
+    0
+   ],
+   "lineComplete": true
+  },
+  {
+   "index": 2,
+   "axis": "row",
+   "line": 3,
+   "clues": [
+    3
+   ],
+   "before": [
+    -1,
+    -1,
+    -1,
+    -1,
+    -1
+   ],
+   "after": [
+    -1,
+    -1,
+    1,
+    -1,
+    -1
+   ],
+   "changes": [
+    {
+     "index": 2,
+     "row": 3,
+     "col": 2,
+     "from": -1,
+     "to": 1
+    }
+   ],
+   "reason": {
+    "code": "overlap",
+    "text": "Clues [3] in 5 cells leave slack 2; the cells shared by every placement are forced."
+   },
+   "pinnedClues": [],
+   "lineComplete": false
+  },
+  {
+   "index": 3,
+   "axis": "col",
+   "line": 0,
+   "clues": [
+    2
+   ],
+   "before": [
+    -1,
+    -1,
+    1,
+    -1,
+    -1
+   ],
+   "after": [
+    0,
+    -1,
+    1,
+    -1,
+    0
+   ],
+   "changes": [
+    {
+     "index": 0,
+     "row": 0,
+     "col": 0,
+     "from": -1,
+     "to": 0
+    },
+    {
+     "index": 4,
+     "row": 4,
+     "col": 0,
+     "from": -1,
+     "to": 0
+    }
+   ],
+   "reason": {
+    "code": "constrained",
+    "text": "Given the cells already known, every valid placement of the clues agrees on these cells."
+   },
+   "pinnedClues": [],
+   "lineComplete": false
+  },
+  {
+   "index": 4,
+   "axis": "col",
+   "line": 1,
+   "clues": [
+    4
+   ],
+   "before": [
+    -1,
+    1,
+    1,
+    -1,
+    -1
+   ],
+   "after": [
+    -1,
+    1,
+    1,
+    1,
+    -1
+   ],
+   "changes": [
+    {
+     "index": 3,
+     "row": 3,
+     "col": 1,
+     "from": -1,
+     "to": 1
+    }
+   ],
+   "reason": {
+    "code": "constrained",
+    "text": "Given the cells already known, every valid placement of the clues agrees on these cells."
+   },
+   "pinnedClues": [],
+   "lineComplete": false
+  },
+  {
+   "index": 5,
+   "axis": "col",
+   "line": 2,
+   "clues": [
+    5
+   ],
+   "before": [
+    -1,
+    1,
+    1,
+    1,
+    -1
+   ],
+   "after": [
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "changes": [
+    {
+     "index": 0,
+     "row": 0,
+     "col": 2,
+     "from": -1,
+     "to": 1
+    },
+    {
+     "index": 4,
+     "row": 4,
+     "col": 2,
+     "from": -1,
+     "to": 1
+    }
+   ],
+   "reason": {
+    "code": "constrained",
+    "text": "Given the cells already known, every valid placement of the clues agrees on these cells."
+   },
+   "pinnedClues": [
+    0
+   ],
+   "lineComplete": true
+  },
+  {
+   "index": 6,
+   "axis": "col",
+   "line": 3,
+   "clues": [
+    3
+   ],
+   "before": [
+    -1,
+    1,
+    1,
+    -1,
+    -1
+   ],
+   "after": [
+    -1,
+    1,
+    1,
+    -1,
+    0
+   ],
+   "changes": [
+    {
+     "index": 4,
+     "row": 4,
+     "col": 3,
+     "from": -1,
+     "to": 0
+    }
+   ],
+   "reason": {
+    "code": "constrained",
+    "text": "Given the cells already known, every valid placement of the clues agrees on these cells."
+   },
+   "pinnedClues": [],
+   "lineComplete": false
+  },
+  {
+   "index": 7,
+   "axis": "col",
+   "line": 4,
+   "clues": [
+    1
+   ],
+   "before": [
+    -1,
+    -1,
+    1,
+    -1,
+    -1
+   ],
+   "after": [
+    0,
+    0,
+    1,
+    0,
+    0
+   ],
+   "changes": [
+    {
+     "index": 0,
+     "row": 0,
+     "col": 4,
+     "from": -1,
+     "to": 0
+    },
+    {
+     "index": 1,
+     "row": 1,
+     "col": 4,
+     "from": -1,
+     "to": 0
+    },
+    {
+     "index": 3,
+     "row": 3,
+     "col": 4,
+     "from": -1,
+     "to": 0
+    },
+    {
+     "index": 4,
+     "row": 4,
+     "col": 4,
+     "from": -1,
+     "to": 0
+    }
+   ],
+   "reason": {
+    "code": "clue_satisfied",
+    "text": "Known filled cells already account for all 1 clue cells; the remaining unknown cells must be empty."
+   },
+   "pinnedClues": [
+    0
+   ],
+   "lineComplete": true
+  },
+  {
+   "index": 8,
+   "axis": "row",
+   "line": 1,
+   "clues": [
+    4
+   ],
+   "before": [
+    -1,
+    1,
+    1,
+    1,
+    0
+   ],
+   "after": [
+    1,
+    1,
+    1,
+    1,
+    0
+   ],
+   "changes": [
+    {
+     "index": 0,
+     "row": 1,
+     "col": 0,
+     "from": -1,
+     "to": 1
+    }
+   ],
+   "reason": {
+    "code": "constrained",
+    "text": "Given the cells already known, every valid placement of the clues agrees on these cells."
+   },
+   "pinnedClues": [
+    0
+   ],
+   "lineComplete": true
+  },
+  {
+   "index": 9,
+   "axis": "row",
+   "line": 4,
+   "clues": [
+    1
+   ],
+   "before": [
+    0,
+    -1,
+    1,
+    0,
+    0
+   ],
+   "after": [
+    0,
+    0,
+    1,
+    0,
+    0
+   ],
+   "changes": [
+    {
+     "index": 1,
+     "row": 4,
+     "col": 1,
+     "from": -1,
+     "to": 0
+    }
+   ],
+   "reason": {
+    "code": "clue_satisfied",
+    "text": "Known filled cells already account for all 1 clue cells; the remaining unknown cells must be empty."
+   },
+   "pinnedClues": [
+    0
+   ],
+   "lineComplete": true
+  },
+  {
+   "index": 10,
+   "axis": "col",
+   "line": 0,
+   "clues": [
+    2
+   ],
+   "before": [
+    0,
+    1,
+    1,
+    -1,
+    0
+   ],
+   "after": [
+    0,
+    1,
+    1,
+    0,
+    0
+   ],
+   "changes": [
+    {
+     "index": 3,
+     "row": 3,
+     "col": 0,
+     "from": -1,
+     "to": 0
+    }
+   ],
+   "reason": {
+    "code": "clue_satisfied",
+    "text": "Known filled cells already account for all 2 clue cells; the remaining unknown cells must be empty."
+   },
+   "pinnedClues": [
+    0
+   ],
+   "lineComplete": true
+  },
+  {
+   "index": 11,
+   "axis": "col",
+   "line": 1,
+   "clues": [
+    4
+   ],
+   "before": [
+    -1,
+    1,
+    1,
+    1,
+    0
+   ],
+   "after": [
+    1,
+    1,
+    1,
+    1,
+    0
+   ],
+   "changes": [
+    {
+     "index": 0,
+     "row": 0,
+     "col": 1,
+     "from": -1,
+     "to": 1
+    }
+   ],
+   "reason": {
+    "code": "constrained",
+    "text": "Given the cells already known, every valid placement of the clues agrees on these cells."
+   },
+   "pinnedClues": [
+    0
+   ],
+   "lineComplete": true
+  },
+  {
+   "index": 12,
+   "axis": "row",
+   "line": 0,
+   "clues": [
+    2
+   ],
+   "before": [
+    0,
+    1,
+    1,
+    -1,
+    0
+   ],
+   "after": [
+    0,
+    1,
+    1,
+    0,
+    0
+   ],
+   "changes": [
+    {
+     "index": 3,
+     "row": 0,
+     "col": 3,
+     "from": -1,
+     "to": 0
+    }
+   ],
+   "reason": {
+    "code": "clue_satisfied",
+    "text": "Known filled cells already account for all 2 clue cells; the remaining unknown cells must be empty."
+   },
+   "pinnedClues": [
+    0
+   ],
+   "lineComplete": true
+  },
+  {
+   "index": 13,
+   "axis": "row",
+   "line": 3,
+   "clues": [
+    3
+   ],
+   "before": [
+    0,
+    1,
+    1,
+    -1,
+    0
+   ],
+   "after": [
+    0,
+    1,
+    1,
+    1,
+    0
+   ],
+   "changes": [
+    {
+     "index": 3,
+     "row": 3,
+     "col": 3,
+     "from": -1,
+     "to": 1
+    }
+   ],
+   "reason": {
+    "code": "constrained",
+    "text": "Given the cells already known, every valid placement of the clues agrees on these cells."
+   },
+   "pinnedClues": [
+    0
+   ],
+   "lineComplete": true
+  }
+ ],
+ "unknownRemaining": 0
+}
